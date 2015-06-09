@@ -10,8 +10,7 @@ $(document).ready(function(){
 	var xWins = tally.forX;
 	var oWins = tally.forO;
 	var moves = 1;
-	var xBoxes = [];
-	var oBoxes = [];
+	var boxes = [];
 
 	var winners = [
 		["1", "2", "3"],
@@ -24,24 +23,31 @@ $(document).ready(function(){
 		["3", "5", "7"],
 	];
 
-	function youWon(winXO, winCount, letterWins) {
-		$('#winner').html(winXO);
-		$('#winner').show();
-		if (winCount == tally.forX){
+	function setWin(player){
+		if (player === 'X'){
 			tally.forX++;
 			xWins = tally.forX;
-			$(letterWins).html(tally.forX);
 		}
-		else if (winCount == tally.forO){
+		else if (player === 'O'){
 			tally.forO++;
 			oWins = tally.forO;
-			$(letterWins).html(tally.forO);
 		}
-		$('.who').hide();
-		$('div').css('pointer-events', 'none');
 	};
 
-	function checkWin(winBoxes, winXO, winCount, letterWins) {
+	function getPlayerMoves(player, boxes){
+		return boxes.filter(function(move){
+			return move.player === player;
+		}).map(function(move){return move.id});
+	};
+
+	// function 
+
+	// winBoxes - xBoxes/oBoxes
+	// winXO - html to post ('X Wins!!')
+	// winCount - number of wins the player has
+	// letterWins - class for the div win tally gets added to.
+
+	function checkWin(player, winBoxes) {
 		for (var i = 0; i < winners.length; i++){
 			var posArray = winners[i];
 			var count = {};
@@ -55,50 +61,59 @@ $(document).ready(function(){
 					quant.push(count[posArray[j]]);
 					if (quant.length > 2 && $.inArray(-1, quant) == -1){
 						var winArray = posArray;
-						youWon(winXO, winCount, letterWins);
+						return true;
 					}
 				}
 			}
 		}
+		return false;
 	};
 
-  function isSquareAvailable(div) {
-    return $(div).hasClass('xgo') || $(div).hasClass('ogo');
+  function isSquareAvailable(id) {
+    var ids = boxes.map(function(move){return move.id});
+    return ids.indexOf(id) === -1;
   };
 
-  function setMove(player, div) {
-    if (player === "X") {
-		  $(div).addClass('xgo'); // todo: change for state changing code
-		  xBoxes.push($(div).attr('id'));
-    } else if (player === "O") {
-		  $(div).addClass('ogo'); // todo: change for state changing code
-		  oBoxes.push($(div).attr('id'));
-    }
+  function setMove(player, id) {
+  	boxes.push({player: player, id: id});
+  	console.log(getPlayerMoves(player, boxes));
+    interface.setMove(player, id)
+  };
+
+  function getBoxId(div){
+  	return $(div).attr('id');
   };
 
   function handleMakeMove() {
-		if (isSquareAvailable(this)){
+  	console.log(isSquareAvailable(getBoxId(this)));
+		if (!isSquareAvailable(getBoxId(this))){
 			moves = moves;
 		}
 		else if (moves > 4 && moves % 2 != 0){
-      makeMove("X", this);
+		    setMove("X", getBoxId(this));
 			interface.setCurrentPlayer("O");
-			checkWin(xBoxes, "X Wins!!", xWins, '.xwins');
+			if (checkWin("X", getPlayerMoves("X", boxes))){
+				setWin("X");
+				interface.setWin("X", tally)
+			}
 			moves++;
 		}
 		else if (moves > 4 && moves % 2 === 0){
-      makeMove("O", this);
+		    setMove("O", getBoxId(this));
 			interface.setCurrentPlayer("X");
-			checkWin(oBoxes, "O Wins!!", oWins, '.owins');
+			if (checkWin("O", getPlayerMoves("O", boxes))){
+				setWin("O");
+				interface.setWin("O", tally)
+			}
 			moves++;
 		}
 		else if (moves % 2 != 0){
-      makeMove("X", this);
+		    setMove("X", getBoxId(this));
 			interface.setCurrentPlayer("O");
 			moves++;
 		}
 		else if (moves % 2 === 0){
-      makeMove("O", this);
+		    setMove("O", getBoxId(this));
 			interface.setCurrentPlayer("X");
 			moves++;
 		}
@@ -115,8 +130,7 @@ $(document).ready(function(){
 			moves = 2;
 			firstPlayerName = "O";
 		}
-		xBoxes = [];
-		oBoxes = [];
+		boxes = [];
 
     interface.resetBoard(firstPlayerName);
 	}

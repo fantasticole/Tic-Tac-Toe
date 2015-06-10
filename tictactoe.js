@@ -6,11 +6,9 @@ $(document).ready(function(){
 
 	$('#winner').hide();
 	$('#winner').click('disable');
-
-	var xWins = tally.forX;
-	var oWins = tally.forO;
-	var moves = 1;
+	
 	var boxes = [];
+	var currentPlayer = "X";
 
 	var winners = [
 		["1", "2", "3"],
@@ -26,11 +24,9 @@ $(document).ready(function(){
 	function setWin(player){
 		if (player === 'X'){
 			tally.forX++;
-			xWins = tally.forX;
 		}
 		else if (player === 'O'){
 			tally.forO++;
-			oWins = tally.forO;
 		}
 	};
 
@@ -84,55 +80,35 @@ $(document).ready(function(){
   	return $(div).attr('id');
   };
 
+  function otherPlayer(player){
+  	var mapping = {"X": "O", "O": "X"};
+  	return mapping[player];
+  };
+
   function handleMakeMove() {
   	console.log(isSquareAvailable(getBoxId(this)));
-		if (!isSquareAvailable(getBoxId(this))){
-			moves = moves;
-		}
-		else if (moves > 4 && moves % 2 != 0){
-		    setMove("X", getBoxId(this));
-			interface.setCurrentPlayer("O");
-			if (checkWin("X", getPlayerMoves("X", boxes))){
-				setWin("X");
-				interface.setWin("X", tally)
+		if (isSquareAvailable(getBoxId(this))){
+			setMove(currentPlayer, getBoxId(this));
+			interface.setCurrentPlayer(otherPlayer(currentPlayer));
+			if (checkWin(currentPlayer, getPlayerMoves(currentPlayer, boxes))){
+				setWin(currentPlayer);
+				interface.setWin(currentPlayer, tally)
 			}
-			moves++;
-		}
-		else if (moves > 4 && moves % 2 === 0){
-		    setMove("O", getBoxId(this));
-			interface.setCurrentPlayer("X");
-			if (checkWin("O", getPlayerMoves("O", boxes))){
-				setWin("O");
-				interface.setWin("O", tally)
-			}
-			moves++;
-		}
-		else if (moves % 2 != 0){
-		    setMove("X", getBoxId(this));
-			interface.setCurrentPlayer("O");
-			moves++;
-		}
-		else if (moves % 2 === 0){
-		    setMove("O", getBoxId(this));
-			interface.setCurrentPlayer("X");
-			moves++;
+			currentPlayer = otherPlayer(currentPlayer);
 		}
   };
 
   function resetBoard() {
-    var firstPlayerName;
 
-		if ((xWins + oWins) % 2 === 0){
-			moves = 1;
-			firstPlayerName = "X";
+		if ((tally.forX + tally.forO) % 2 === 0){
+			currentPlayer = "X";
 		}
 		else {
-			moves = 2;
-			firstPlayerName = "O";
+			currentPlayer = "O";
 		}
 		boxes = [];
 
-    interface.resetBoard(firstPlayerName);
+    interface.resetBoard(currentPlayer);
 	}
 
 	$('div').click(handleMakeMove);

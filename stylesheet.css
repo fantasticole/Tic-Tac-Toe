@@ -12,13 +12,17 @@ body {
 	font-size: 30px;
 }
 
+h1{
+	font-size: 2em;
+}
+
 span {
 	color: #FF99FF;
 }
 
 div {
-	height: 150px;
-	width: 150px;
+	width: 20%;
+	height: 20vw;
 	border-radius: 5px;
 	background-color: #5500A9;
 	display: inline-block;
@@ -56,4 +60,10 @@ div:hover {
 
 .ofin {
 	background-image: url("images/oFinal.png");
+}
+
+@media (max-width: 650px){
+	h1{
+		font-size: 1em;
+	}
 }

@@ -1,7 +1,6 @@
 ;(function() {
   var interface = {
     resetBoard: function (firstPlayerName) {
-      console.log("hey resetting!");
 		  $('div').css('pointer-events', 'auto');
 		  $('div').removeClass();
 		  $('#winner').hide();

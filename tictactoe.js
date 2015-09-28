@@ -62,59 +62,65 @@ $(document).ready(function(){
 		}
 	};
 
+  function isSquareAvailable(div) {
+    return $(div).hasClass('xgo') || $(div).hasClass('ogo');
+  };
 
-	$('div').click(function() {
-		if ($(this).hasClass('xgo') || $(this).hasClass('ogo')){
+  function setMove(player, div) {
+    if (player === "X") {
+		  $(div).addClass('xgo'); // todo: change for state changing code
+		  xBoxes.push($(div).attr('id'));
+    } else if (player === "O") {
+		  $(div).addClass('ogo'); // todo: change for state changing code
+		  oBoxes.push($(div).attr('id'));
+    }
+  };
+
+  function handleMakeMove() {
+		if (isSquareAvailable(this)){
 			moves = moves;
 		}
 		else if (moves > 4 && moves % 2 != 0){
-			$(this).addClass('xgo');
-			xBoxes.push($(this).attr('id'));
-			$('.turn').html("O");
+      makeMove("X", this);
+			interface.setCurrentPlayer("O");
 			checkWin(xBoxes, "X Wins!!", xWins, '.xwins');
 			moves++;
-			if (moves > 9){
-				$('button').show();
-			}
 		}
 		else if (moves > 4 && moves % 2 === 0){
-			$(this).addClass('ogo');
-			oBoxes.push($(this).attr('id'));
-			$('.turn').html("X");
+      makeMove("O", this);
+			interface.setCurrentPlayer("X");
 			checkWin(oBoxes, "O Wins!!", oWins, '.owins');
 			moves++;
-			if (moves > 10){
-				$('button').show();
-			}
 		}
 		else if (moves % 2 != 0){
-			$(this).addClass('xgo');
-			xBoxes.push($(this).attr('id'));
-			$('.turn').html("O");
+      makeMove("X", this);
+			interface.setCurrentPlayer("O");
 			moves++;
 		}
 		else if (moves % 2 === 0){
-			$(this).addClass('ogo');
-			oBoxes.push($(this).attr('id'));
-			$('.turn').html("X");
+      makeMove("O", this);
+			interface.setCurrentPlayer("X");
 			moves++;
 		}
-	});
+  };
 
-	$('button').click(function() {
-		$('div').css('pointer-events', 'auto');
-		$('div').removeClass();
-		$('#winner').hide();
-		$('.who').show();
+  function resetBoard() {
+    var firstPlayerName;
+
 		if ((xWins + oWins) % 2 === 0){
 			moves = 1;
-			$('.turn').html("X");
+			firstPlayerName = "X";
 		}
 		else {
 			moves = 2;
-			$('.turn').html("O");
+			firstPlayerName = "O";
 		}
 		xBoxes = [];
 		oBoxes = [];
-	});
+
+    interface.resetBoard(firstPlayerName);
+	}
+
+	$('div').click(handleMakeMove);
+	$('button').click(resetBoard);
 });
